@@ -23,19 +23,25 @@ trait EventMediator {
  */
 object CentralizedEvents extends EventMediator {
   def mediate(fetcher: Fetcher, parser: XmlParser, store: FeedStore, checker: UrlChecker) {
-    fetcher.rssFetched += { case (xml, url) => parser.parseRSS(xml, url) } //#HDL
+    fetcher.rssFetched += { case (xml, url) => parser.parseRSS(xml, url) }
+    
+    parser.channelParsed += store.addChannel _
+    parser.itemParsed += store.addItem _
   }
 }
 
 object SimpleReporter extends EventMediator {
   def mediate(fetcher: Fetcher, parser: XmlParser, store: FeedStore, checker: UrlChecker) {
-    store.channels.changed += { x => println("Channels in store changed. Size: " + x.size) } //#HDL //#IF
+    store.channels.changed += { x => println("Channels in store changed. Size: " + x.size) }
     
-    fetcher.rssFetched += { _ => println("New content fetched") } //#HDL
+    fetcher.rssFetched += { _ => println("New content fetched") }
     
-    parser.channelParsed += { _ => println("A channel was parsed") } //#HDL
-    parser.itemParsed    += { _ => println("An item was parsed")   } //#HDL
+    parser.channelParsed += { _ => println("A channel was parsed") }
+    parser.itemParsed    += { _ => println("An item was parsed")   }
     
-    fetcher.state.changed += println _ //#IF //#HDL
+    fetcher.state.changed += println _
+    
+    (checker.checkedURL and checker.urlIsInvalid) += { t => println("Invalid url: " + t._1) }
+    (checker.checkedURL and checker.urlIsValid)   += { t => println("Valid url: "   + t._1) }
   }
 }

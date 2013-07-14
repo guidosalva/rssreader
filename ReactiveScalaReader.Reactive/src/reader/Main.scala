@@ -2,15 +2,14 @@ package reader
 
 import java.net.URL
 
+import scala.events.ImperativeEvent
+import scala.events.behaviour.Signal
 import scala.io.Source
 import scala.swing.Dialog
 import scala.swing.Dialog.Message
 import scala.swing.Swing
 import scala.swing.Swing.EmptyIcon
 
-import macro.SignalMacro.{SignalM => Signal}
-import react.SignalSynt
-import react.events.ImperativeEvent
 import reader.connectors.CentralizedEvents
 import reader.connectors.SimpleReporter
 import reader.data.FeedStore
@@ -25,13 +24,14 @@ object Main extends App {
   val checker = new UrlChecker
   val fetcher = new Fetcher(checker.checkedURL.fold(Set.empty[URL])(_ + _))
   val parser = new XmlParser
-  val store = new FeedStore(parser.channelParsed, parser.itemParsed)
+  val store = new FeedStore
   val app = new GUI(
       store,
-      (fetcher.state.changed ||   //#EF //#IF
-        (store.itemAdded map { x: RSSItem => //#EF
-          (x.srcChannel map (_.title) getOrElse "<unknown>") + ": " + x.title })) latest "", //#IF
-      Signal[Any] { val itemCount = (store.channels() map { case (_, items) => items().size }).sum //#SIG
+      (fetcher.state.changed ||
+        (store.itemAdded map { x: RSSItem =>
+          (x.srcChannel map (_.title) getOrElse "<unknown>") + ": " + x.title })) latest "",
+      Signal[Any] {
+        val itemCount = (store.channels() map { case (_, items) => items().size }).sum
        "Channels: " + store.channels().size + " Items: " + itemCount
       })
   
@@ -43,7 +43,7 @@ object Main extends App {
   
   checker.urlIsInvalid += { _ => showInvalidUrlDialog }
   
-  val sleepTime = 5000 //20000
+  val sleepTime = 20000
   
   // ---------------------------------------------------------------------------
   
@@ -71,11 +71,11 @@ object Main extends App {
     Dialog.showMessage(null, "This url is not valid", "Invalid url", Message.Error, EmptyIcon)
   
   private def setupGuiEvents {
-    app.requestURLAddition += { url => checker.check(url) } //#HDL
+    app.requestURLAddition += { url => checker.check(url) }
     
-    val guardedTick = tick && { _ => app.refreshAllowed } //#HDL //#EF
+    val guardedTick = tick && { _ => app.refreshAllowed }
     
-    (app.refresh || guardedTick) += { _ => fetcher.fetchAll } //#EF //#HDL
+    (app.refresh || guardedTick) += { _ => fetcher.fetchAll }
   }
   
   private def loadURLs(path: String): Option[Seq[String]] = {

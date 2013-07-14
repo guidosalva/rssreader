@@ -5,26 +5,26 @@ import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
 
+import scala.events.Event
+import scala.events.Observable
+import scala.events.behaviour.Signal
+import scala.events.behaviour.Var
 import scala.xml.NodeSeq
 import scala.xml.XML
-
-import react.Signal
-import react.events.Event
-import react.events.Observable
 
 /**
  * The Fetcher is responsible to fetch the xml data
  * After fetching the data an event is triggered
  */
 class Fetcher(val urls: Signal[Set[URL]]) {
-  lazy val rssFetched: Event[(NodeSeq, URL)] = fetch.after map { (_: (URL, NodeSeq)).swap } //#EVT //#EF
-  lazy val state: Signal[String] = //#SIG
-    ((fetch.before map { _: Any => "Started fetching" }) ||  //#EF //#EF
-     (fetch.after map { _: Any => "Finished fetching" })) latest "" //#EF //#IF
+  lazy val rssFetched: Event[(NodeSeq, URL)] = fetch.after map { (_: (URL, NodeSeq)).swap }
+  lazy val state =
+    ((fetch.before map { _: Any => "Started fetching" }) ||
+     (fetch.after map { _: Any => "Finished fetching" })) latest ""
   
   val firstFetchInitiated = collection.mutable.Set.empty[URL]
   
-  urls.changed += { urls =>  //#HDL
+  urls.changed += { urls =>
     for (url <- urls filterNot (firstFetchInitiated contains _)) {
       firstFetchInitiated += url
       fetch(url)

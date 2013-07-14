@@ -1,27 +1,44 @@
 package reader.data
 
-import react.Signal
-import react.events.Event
+import scala.events.ImperativeEvent
+import scala.events.behaviour.Signal
+import scala.events.behaviour.Var
 
 /**
  * The FeedStore stores RSSChannels and RSSItems.
  * More specifically, it stores the relation between an RSS Item and its channel
  * to enable clients to ask e.g. for all items stored related to a specific channel.
  */
-class FeedStore (
-    val addChannel: Event[RSSChannel],
-    val addItem: Event[RSSItem]) {
+class FeedStore {
+  private val channelToItems = Var(Map.empty[RSSChannel, Var[Set[RSSItem]]])
   
-  val channels = addChannel.fold(Map.empty[RSSChannel, Signal[Set[RSSItem]]]) { (map, channel) => //#SIG //#IF
-	  map + (channel ->
-	    (addItem && (_.srcChannel.isDefined) && (_.srcChannel.get == channel)). //#EF //#EF
-	      fold(Set.empty[RSSItem])(_ + _)) //#IF
-    }
+  val channels = Signal {
+    channelToItems() map { case (channel, items) => (channel, Signal { items() }) } }
   
-  val itemAdded: Event[RSSItem] = addItem && { item => //#EVT //#EF
-    (for { channel <- item.srcChannel
-           items   <- channels.getValue get channel
-           if (!(items.getValue contains item))
-         } yield ()).isDefined
+  final val itemAdded = new ImperativeEvent[RSSItem]
+  
+  def addChannel(channel: RSSChannel) =
+    channelToItems() = channelToItems.getValue + (channel -> Var(Set.empty))
+  
+  /*
+   * Check whether the item:
+   *   - has a source channel
+   *   - the channel of the item is being tracked (in the map)
+   *   - the item is not yet stored
+   * if all of these hold, return true
+   */
+  private def addItemAllowed(item: RSSItem): Boolean = {
+    val res = for { channel <- item.srcChannel
+                    items   <- channelToItems.getValue get channel
+                    if (!(items.getValue contains item))
+                  } yield Some(true)
+    res.isDefined
   }
+  
+  def addItem(item: RSSItem) =
+    if (addItemAllowed(item)) {
+      val channel = item.srcChannel.get
+      channelToItems.getValue(channel)() += item
+      itemAdded(item)
+    }
 }

@@ -7,12 +7,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import scala.events.Event
+import scala.events.ImperativeEvent
+import scala.events.Observable
 import scala.xml.Node
 import scala.xml.NodeSeq
 
-import react.events.Event
-import react.events.ImperativeEvent
-import react.events.Observable
 import reader.common.sequence
 
 /**
@@ -21,21 +21,21 @@ import reader.common.sequence
 *
 */
 class XmlParser {
-  val explicitItemParsed = new ImperativeEvent[RSSItem] //#EVT
+  val explicitItemParsed = new ImperativeEvent[RSSItem]
   
   // only for clarity in event expressions below
   private def discardArgument[A](tuple: (Any,A)): A = tuple._2
   private def parseSuccessfull[A](res: Option[A]): Boolean = res.isDefined
   
-  lazy val itemParsed: Event[RSSItem] = //#EVT
-    ((parseItem.after map discardArgument[Option[RSSItem]]) && //#EF //#EF
-        { parseSuccessfull(_) } map { o: Option[RSSItem] => o.get }) || explicitItemParsed //#EF
+  lazy val itemParsed: Event[RSSItem] =
+    ((parseItem.after map discardArgument[Option[RSSItem]]) &&
+        { parseSuccessfull(_) } map { o: Option[RSSItem] => o.get }) || explicitItemParsed
   
-  lazy val channelParsed: Event[RSSChannel] = //#EVT
-    (parseChannel.after map discardArgument[Option[RSSChannel]]) && //#EF //#EF
+  lazy val channelParsed: Event[RSSChannel] =
+    (parseChannel.after map discardArgument[Option[RSSChannel]]) &&
         { parseSuccessfull(_) } map { o: Option[RSSChannel] => o.get }
   
-  lazy val entityParsed  = channelParsed.dropParam || itemParsed.dropParam //#EVT //#EF
+  lazy val entityParsed  = channelParsed.dropParam || itemParsed.dropParam
   
   val dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
   

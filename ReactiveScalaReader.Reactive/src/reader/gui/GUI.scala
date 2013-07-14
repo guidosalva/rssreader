@@ -4,15 +4,12 @@ import java.awt.Dimension
 import java.awt.Point
 import java.awt.Toolkit
 
+import scala.events.Event
+import scala.events.ImperativeEvent
+import scala.events.behaviour.Signal
 import scala.swing._
 
 import javax.swing.ImageIcon
-import macro.SignalMacro.{SignalM => Signal}
-import react.Signal
-import react.SignalSynt
-import react.StaticSignal
-import react.events.Event
-import react.events.ImperativeEvent
 import reader.data.FeedStore
 import reader.data.RSSChannel
 import reader.data.RSSItem
@@ -23,13 +20,13 @@ import reader.data.RSSItem
  * by an initialized content mediator
  */
 class GUI(store: FeedStore,
-          notifications: Signal[Any] = StaticSignal(){ () },
-          itemStatus: Signal[Any] = StaticSignal(){ () })
+          notifications: Signal[Any] = new Signal,
+          itemStatus: Signal[Any] = new Signal)
             extends SimpleSwingApplication {
   val refreshButton = new ReButton("Refresh")
-  val refresh: Event[Unit] = refreshButton.pressed.dropParam: Event[Unit] //#EF
+  val refresh = refreshButton.pressed.dropParam: Event[Unit]
   
-  val requestURLAddition = new ImperativeEvent[String] //#EVT
+  val requestURLAddition = new ImperativeEvent[String]
   
   val refreshCheckbox = new ReCheckBox("auto refresh") { selected = true }
   def refreshAllowed = refreshCheckbox.selected
@@ -59,12 +56,12 @@ class GUI(store: FeedStore,
     val (framewidth, frameheight) = (840, 480)
     configure
     
-    val channelList = new ReListView[RSSChannel](Signal { store.channels().keys.toIterable }) { //#SIG
+    val channelList = new ReListView[RSSChannel](Signal { store.channels().keys.toIterable }) {
       renderer = ListView.Renderer(_.title)
       peer.setVisibleRowCount(3)
     }
     
-    val selectedChannelItems = Signal { //#SIG
+    val selectedChannelItems = Signal {
       channelList.selectedItem() match {
         case Some(channel) => store.channels().get(channel) match {
           case Some(items) => items().toIterable
