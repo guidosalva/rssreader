@@ -1,14 +1,14 @@
 import java.net._
-import scala.events._
-import scala.events.behaviour._
+import rescala.Signal
+import makro.SignalMacro.{ SignalM => Signal }
 import scala.xml.XML
 import scala.xml.NodeSeq
 
 class Fetcher(val url: URL) {
 
   var listOfUrl: Signal[NodeSeq] = Signal{defaultLoadMethod(url)}
-  var ChTitle: Signal[String] = Signal{(listOfUrl.getValue\ "title").text}
-  
+  var ChTitle: Signal[String] = Signal{(listOfUrl.get\ "title").text}
+
   private def defaultLoadMethod(urlA: URL): NodeSeq = {
     var channel: NodeSeq = null
     try {
@@ -22,6 +22,6 @@ class Fetcher(val url: URL) {
   }
 
 
-  
+
 
 }

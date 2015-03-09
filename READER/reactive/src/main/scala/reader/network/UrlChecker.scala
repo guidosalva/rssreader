@@ -4,8 +4,8 @@ import java.net.MalformedURLException
 import java.net.URL
 import java.net.UnknownHostException
 
-import scala.events.Event
-import scala.events.Observable
+import rescala.events.Event
+import rescala.events.Observable
 
 class UrlChecker {
   type CheckArg = String

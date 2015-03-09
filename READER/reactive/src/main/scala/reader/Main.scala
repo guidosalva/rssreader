@@ -2,8 +2,9 @@ package reader
 
 import java.net.URL
 
-import scala.events.ImperativeEvent
-import scala.events.behaviour.Signal
+import rescala.events.ImperativeEvent
+import rescala.Signal
+import makro.SignalMacro.{ SignalM => Signal }
 import scala.io.Source
 import scala.swing.Dialog
 import scala.swing.Dialog.Message
@@ -34,50 +35,50 @@ object Main extends App {
         val itemCount = (store.channels() map { case (_, items) => items().size }).sum
        "Channels: " + store.channels().size + " Items: " + itemCount
       })
-  
+
   setupGuiEvents
-  
+
   List(SimpleReporter, CentralizedEvents) foreach { m =>
     m.mediate(fetcher, parser, store, checker)
   }
-  
+
   checker.urlIsInvalid += { _ => showInvalidUrlDialog }
-  
+
   val sleepTime = 20000
-  
+
   // ---------------------------------------------------------------------------
-  
+
   println("Program started")
-  
+
   app.main(Array())
-  
+
   val readUrls: Option[Seq[String]] = for {
     file <- args.headOption
     urls <- loadURLs(file)
   } yield urls
-  
+
   (readUrls getOrElse defaultURLs) foreach (checker.check(_))
-  
+
   while (true) { Swing.onEDTWait { tick() }; Thread.sleep(sleepTime) }
-  
+
   // ---------------------------------------------------------------------------
-  
-  def defaultURLs: Seq[String] = 
+
+  def defaultURLs: Seq[String] =
     Seq("http://www.faz.net/aktuell/politik/?rssview=1",
         "http://feeds.gawker.com/lifehacker/full",
         "http://www.scala-lang.org/featured/rss.xml")
-  
+
   def showInvalidUrlDialog =
     Dialog.showMessage(null, "This url is not valid", "Invalid url", Message.Error, EmptyIcon)
-  
+
   private def setupGuiEvents {
     app.requestURLAddition += { url => checker.check(url) }
-    
+
     val guardedTick = tick && { _ => app.refreshAllowed }
-    
+
     (app.refresh || guardedTick) += { _ => fetcher.fetchAll }
   }
-  
+
   private def loadURLs(path: String): Option[Seq[String]] = {
     println("trying to load from " + path)
     val res = try Some(Source.fromFile(path).getLines.toList) catch { case _: Throwable => None }

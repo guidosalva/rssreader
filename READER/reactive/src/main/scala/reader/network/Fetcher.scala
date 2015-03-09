@@ -5,10 +5,10 @@ import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
 
-import scala.events.Event
-import scala.events.Observable
-import scala.events.behaviour.Signal
-import scala.events.behaviour.Var
+import rescala.events.Event
+import rescala.events.Observable
+import rescala.Signal
+import rescala.Var
 import scala.xml.NodeSeq
 import scala.xml.XML
 
@@ -46,5 +46,5 @@ class Fetcher(val urls: Signal[Set[URL]]) {
    * Fetch the channels from the list of urls
    */
   
-  def fetchAll = { urls.getValue foreach (fetch(_)) }
+  def fetchAll = { urls.get foreach (fetch(_)) }
 }

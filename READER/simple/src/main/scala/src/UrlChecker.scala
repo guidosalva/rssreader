@@ -1,13 +1,13 @@
-import scala.events._
-import scala.events.behaviour._
+import rescala.Signal
+import makro.SignalMacro.{ SignalM => Signal }
 import java.net._
 
 class UrlChecker(val url: String) {
-  
+
   var EM: String = ""
-  
+
   var UrlValid: Signal[Boolean] = Signal{checkURL(url)}
-  var ErrorMessage: Signal[String] = Signal{EM} 
+  var ErrorMessage: Signal[String] = Signal{EM}
 
     private def checkURL(url: String): Boolean = {
       var valid = false
@@ -22,8 +22,8 @@ class UrlChecker(val url: String) {
     }
     return valid
   }
-  
+
     private def errorMessage(url: String, e: Exception): String =
     "Error while checking '" + url + "' - " + e.getMessage
-  
+
 }

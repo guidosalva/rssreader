@@ -41,7 +41,8 @@ object SimpleReporter extends EventMediator {
     
     fetcher.state.changed += println _
     
-    (checker.checkedURL and checker.urlIsInvalid) += { t => println("Invalid url: " + t._1) }
-    (checker.checkedURL and checker.urlIsValid)   += { t => println("Valid url: "   + t._1) }
+    //TODO: need to check how the function and exactly workes
+    //(checker.checkedURL and checker.urlIsInvalid) += { t => println("Invalid url: " + t._1) }
+    //(checker.checkedURL and checker.urlIsValid)   += { t => println("Valid url: "   + t._1) }
   }
 }

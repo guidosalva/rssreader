@@ -7,9 +7,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-import scala.events.Event
-import scala.events.ImperativeEvent
-import scala.events.Observable
+import rescala.events.Event
+import rescala.events.ImperativeEvent
+import rescala.events.Observable
 import scala.xml.Node
 import scala.xml.NodeSeq
 

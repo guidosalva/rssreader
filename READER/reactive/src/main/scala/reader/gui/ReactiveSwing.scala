@@ -1,8 +1,9 @@
 package reader.gui
 
-import scala.events.ImperativeEvent
-import scala.events.behaviour.Signal
-import scala.events.behaviour.Var
+import rescala.events.ImperativeEvent
+import rescala.Signal
+import rescala.Var
+import makro.SignalMacro.{ SignalM => Signal }
 import scala.swing.Button
 import scala.swing.CheckBox
 import scala.swing.Label

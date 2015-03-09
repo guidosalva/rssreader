@@ -4,9 +4,11 @@ import java.awt.Dimension
 import java.awt.Point
 import java.awt.Toolkit
 
-import scala.events.Event
-import scala.events.ImperativeEvent
-import scala.events.behaviour.Signal
+import rescala.events.Event
+import rescala.events.ImperativeEvent
+import rescala.StaticSignal
+import rescala.Signal
+import makro.SignalMacro.{ SignalM => Signal }
 import scala.swing._
 
 import javax.swing.ImageIcon
@@ -20,8 +22,8 @@ import reader.data.RSSItem
  * by an initialized content mediator
  */
 class GUI(store: FeedStore,
-          notifications: Signal[Any] = new Signal,
-          itemStatus: Signal[Any] = new Signal)
+          notifications: Signal[Any] = StaticSignal(){ () },
+          itemStatus: Signal[Any] = StaticSignal(){ () })
             extends SimpleSwingApplication {
   val refreshButton = new ReButton("Refresh")
   val refresh = refreshButton.pressed.dropParam: Event[Unit]

@@ -1,8 +1,9 @@
 package reader.data
 
-import scala.events.ImperativeEvent
-import scala.events.behaviour.Signal
-import scala.events.behaviour.Var
+import rescala.events.ImperativeEvent
+import rescala.Signal
+import rescala.Var
+import makro.SignalMacro.{ SignalM => Signal }
 
 /**
  * The FeedStore stores RSSChannels and RSSItems.
@@ -18,7 +19,7 @@ class FeedStore {
   final val itemAdded = new ImperativeEvent[RSSItem]
   
   def addChannel(channel: RSSChannel) =
-    channelToItems() = channelToItems.getValue + (channel -> Var(Set.empty))
+    channelToItems() = channelToItems.get + (channel -> Var(Set.empty))
   
   /*
    * Check whether the item:
@@ -29,8 +30,8 @@ class FeedStore {
    */
   private def addItemAllowed(item: RSSItem): Boolean = {
     val res = for { channel <- item.srcChannel
-                    items   <- channelToItems.getValue get channel
-                    if (!(items.getValue contains item))
+                    items   <- channelToItems.get get channel
+                    if (!(items.get contains item))
                   } yield Some(true)
     res.isDefined
   }
@@ -38,7 +39,7 @@ class FeedStore {
   def addItem(item: RSSItem) =
     if (addItemAllowed(item)) {
       val channel = item.srcChannel.get
-      channelToItems.getValue(channel)() += item
+      channelToItems.get(channel)() += item
       itemAdded(item)
     }
 }
