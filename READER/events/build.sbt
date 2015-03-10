@@ -1,17 +1,13 @@
-name := "ReactiveReader"
+name := "events"
 
 version := "1.0"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.9.2"
 
 autoCompilerPlugins := true
 
-scalaSource in Compile <<= baseDirectory(_ / "src")
-
-scalaSource in Test <<= baseDirectory(_ / "test")
-
-addCompilerPlugin("org.scala-lang.plugins" % "continuations" % "2.8.1")
-//addCompilerPlugin("org.scala-lang.plugins" % "continuations" % "2.9.1")
+addCompilerPlugin("org.scala-lang.plugins" % "continuations"
+% "2.9.2")
 
 scalacOptions += "-P:continuations:enable"
 
@@ -26,3 +22,4 @@ libraryDependencies ++= Seq(
     "com.novocode" % "junit-interface" % "0.8" % "test->default",
     "org.scala-lang" % "scala-swing" % "2.9.2"
 )
+
