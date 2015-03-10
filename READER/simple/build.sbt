@@ -1,4 +1,4 @@
-name := "simple"
+name := "Rssreader-simple"
 
 version := "0.0.0"
 

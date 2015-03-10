@@ -1,4 +1,4 @@
-name := "events"
+name := "Rssreader-events"
 
 version := "1.0"
 

@@ -1,4 +1,4 @@
-name := "reactive"
+name := "Rssreader-reactive"
 
 version := "0.0.0"
 
